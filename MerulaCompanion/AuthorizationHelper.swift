@@ -17,16 +17,30 @@ struct AuthorizationHelper {
         guard status == errAuthorizationSuccess, let auth = authRef else {
             return
         }
-        let rights = AuthorizationItem(name: kAuthorizationRightExecute,
-                                       valueLength: 0,
-                                       value: nil,
-                                       flags: 0)
-        var rightsSet = AuthorizationRights(count: 1, items: UnsafeMutablePointer(mutating: [rights]))
-        AuthorizationCopyRights(auth,
-                                &rightsSet,
-                                nil,
-                                [.preAuthorize, .extendRights],
-                                nil)
-        // authRef sera libéré automatiquement à la fin du scope
+        
+        // Utilisation de la constante C kAuthorizationRightExecute,
+        // et d'un buffer temporaire pour la durée de l'appel
+        let rightName = kAuthorizationRightExecute
+        let item = AuthorizationItem(
+            name: rightName,
+            valueLength: 0,
+            value: nil,
+            flags: 0
+        )
+        var items = [item]
+        items.withUnsafeMutableBufferPointer { buffer in
+            var rights = AuthorizationRights(
+                count: UInt32(buffer.count),
+                items: buffer.baseAddress
+            )
+            AuthorizationCopyRights(
+                auth,
+                &rights,
+                nil,
+                [.preAuthorize, .extendRights],
+                nil
+            )
+        }
+        // authRef sera libéré automatiquement
     }
 }

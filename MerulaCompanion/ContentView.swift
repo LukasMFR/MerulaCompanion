@@ -21,11 +21,16 @@ struct ContentView: View {
             // Sélection du device & de l’opération
             HStack {
                 Picker("Device type:", selection: $device) {
-                    ForEach(DeviceType.allCases) { Text($0.rawValue) }
+                    ForEach(DeviceType.allCases) { dt in
+                        Text(dt.rawValue).tag(dt)
+                    }
                 }
                 .pickerStyle(.segmented)
+                
                 Picker("Operation:", selection: $operation) {
-                    ForEach(Operation.allCases) { Text($0.rawValue) }
+                    ForEach(Operation.allCases) { op in
+                        Text(op.rawValue).tag(op)
+                    }
                 }
                 .pickerStyle(.menu)
             }
